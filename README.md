@@ -10,7 +10,8 @@ Skill validation + packaging for `[descriptor]-SKILL.md` files. Transforms valid
 | `packageng-SKILL.md` | Content — format, validation rules, packaging workflow |
 | `scripts/validate_skill.py` | Pre-package frontmatter validation |
 | `scripts/package_skill.py` | Archive creation with `--final` flag |
-| `packageng.skill` | Packaged archive upload to SKILL directory |
+| `packageng.skill` | Packaged archive for upload to SKILL directory |
+| `.github/workflows/build-skill.yml` | CI workflow — auto-builds and publishes `packageng.skill` on push |
 | `README.md` | Explanatory instructions and overview for this software package |
 
 ## Install
@@ -65,7 +66,7 @@ Directives use the following section headers with numbered lists, shared across 
 
 ## License
 
-See [LICENSE](./LICENSE).
+See [LICENSE](./LICENSE). (C) Copyright 2026 - Sameer Khan - Various and Several Rights Reserved.
 
 ---
-README.md v2.1.0 - Human Approved
+README.md v2.2.0 - Human Approved
