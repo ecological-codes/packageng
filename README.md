@@ -52,7 +52,7 @@ Load on demand when task requires:
 
 Available in - **[ecological-codes/user-prefs](https://github.com/ecological-codes/user-prefs)**
 
-- `claude.md` 
+- `agent.md` 
 
 - `trusted-hosts.md` 
 
