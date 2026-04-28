@@ -8,7 +8,7 @@ Skill validation + packaging for `[descriptor]-SKILL.md` files. Transforms valid
 |---|---|
 | `SKILL.md` | Router — load order |
 | `packageng-SKILL.md` | Content — format, validation rules, packaging workflow |
-| `scripts/validate_skill.py` | Pre-package frontmatter validation |
+| `scripts/validate_skill.py` | Pre-package frontmatter validation, very shallow, doesn't validate the operational codes in the skill file |
 | `scripts/package_skill.py` | Archive creation with `--final` flag |
 | `packageng.skill` | Packaged archive for upload to SKILL directory |
 | `.github/workflows/build-skill.yml` | CI workflow — auto-builds and publishes `packageng.skill` on push |
@@ -69,4 +69,4 @@ Directives use the following section headers with numbered lists, shared across 
 See [LICENSE](./LICENSE). (C) Copyright 2026 - Sameer Khan - Various and Several Rights Reserved.
 
 ---
-README.md v2.2.0 - Human Approved
+README.md v2.2.1 - Human Approved
