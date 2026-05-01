@@ -23,6 +23,7 @@ jobs:
           cd "$GITHUB_WORKSPACE/.."
           zip -r "$GITHUB_WORKSPACE/${SKILL_NAME}.skill" "${SKILL_NAME}/" \
             -x "${SKILL_NAME}/.git/*" \
+            -x "${SKILL_NAME}/.github/*" \
             -x "${SKILL_NAME}/*.skill" \
             -x "${SKILL_NAME}/evals/*" \
             -x "${SKILL_NAME}/__pycache__/*" \
@@ -37,7 +38,7 @@ jobs:
           unzip -l "${SKILL_NAME}.skill"
           echo "=== excluded check ==="
           unzip -l "${SKILL_NAME}.skill" \
-            | grep -E '__pycache__|node_modules|\.pyc$|\.DS_Store|\.git/|/evals/' \
+            | grep -E '__pycache__|node_modules|\.pyc$|\.DS_Store|\.git/|\.github/|/evals/' \
             && { echo "FAIL — excluded files in archive"; exit 1; } \
             || echo "clean"
 
