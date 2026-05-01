@@ -1,6 +1,6 @@
 ---
 name: packageng
-version: 2.0.1
+version: 2.0.0
 description: >
   Validate, package, inspect, or distribute a .skill file or skill folder.
   Triggers: "package my skill", "create a .skill file", "zip my skill folder",
@@ -19,7 +19,7 @@ scripts:
 
 *packageng* — deliberate misspelling of "packaging."
 
-Transforms validated skill folder → distributable `.skill` archive. Pre-flight validation, archive inspection, multi-skill kit bundling.
+Transforms validated skill folder → distributable `.skill` archive. Provides pre-flight validation, archive inspection, multi-skill kit bundling.
 
 ---
 
@@ -32,13 +32,15 @@ Transforms validated skill folder → distributable `.skill` archive. Pre-flight
 - Upload to claude.ai, project creation, load order → `README.md`
 - URL allowlisting → `trusted-hosts.md`
 
-Defer. Don't answer inline.
+Defer; don't answer inline.
 
 ---
 
 ## 1. .skill File Format
 
-`.skill` = **ZIP archive with `.zip` extension renamed to `.skill`**. No proprietary format, no magic bytes beyond ZIP. Any tool producing valid ZIP produces valid `.skill`. Requirements: top-level folder; valid `SKILL.md` or `[descriptor]-SKILL.md` at root.
+`.skill` = **ZIP archive with `.zip` extension renamed to `.skill`**. No proprietary format, no magic bytes beyond ZIP.
+
+Platform extracts as standard ZIP. Any tool producing valid ZIP produces valid `.skill`. Requirements: top-level folder inside archive; folder contains valid `SKILL.md` or `[descriptor]-SKILL.md` at root.
 
 ### Archive Structure
 
@@ -61,7 +63,7 @@ Extracted, folder lands under `/mnt/skills/user/`. Claude sees it in available s
 
 ## 2. Frontmatter Validation
 
-Enforced at upload. Any failure blocks upload.
+Enforced at upload. Failing any rule blocks upload entirely.
 
 ### Required Conditions
 
@@ -105,7 +107,7 @@ Property not in list → validation fails with explicit error naming the unexpec
 
 **[ACTIONS]**
 
-1. Validate before packaging. Failed upload post-package wastes time + tokens.
+1. Always validate before packaging. Failed upload post-package wastes time + tokens.
 
 1. Run companion script:
 
@@ -119,7 +121,7 @@ Property not in list → validation fails with explicit error naming the unexpec
 
 ## 4. Exclusion Conventions
 
-Dev-only artifacts don't ship in `.skill` archives. Including them wastes space + confuses runtime.
+Dev-only artifacts don't ship in `.skill` archives. Including them wastes space + may confuse runtime.
 
 ### Excluded at Any Depth — All Builds
 
@@ -145,7 +147,7 @@ Default mode: root-scoped exclusion. `references/evals/` nested deeper preserved
 
 1. Packaging for **FINAL release distribution** → `evals/` excluded at every depth, not just root. No eval data, test fixtures, benchmark harnesses in release archive.
 
-Eval data is dev + QA artifact — test prompts, expected outputs, benchmarks not intended for public. Release archive = skill instructions + runtime resources only.
+Rationale: eval data is dev + QA artifact. May contain test prompts, expected outputs, internal benchmarks, user-facing examples not intended for public. Release archive = skill instructions + runtime resources only.
 
 Apply FINAL exclusion via `--final`:
 
@@ -162,7 +164,7 @@ Default mode (no flag): only root `evals/` excluded — suitable for internal sh
 
 ### Opaque / Non-Human-Readable Files
 
-Opaque items could behave as malicious binaries causing unexpected code execution on unzip. Be cautious with OS / language-specific extensions.
+Opaque items in `.skill` folder / archive could behave as malicious binaries causing unexpected code execution on unzip. Be cautious with opaque items for modules or files with OS / language-specific extensions.
 
 **[RULES]**
 
@@ -172,7 +174,7 @@ Opaque items could behave as malicious binaries causing unexpected code executio
 
 ## 5. Packaging Methods
 
-Three methods; identical output.
+Three methods; identical output. Choose by tooling.
 
 ### Method A — Command Line (zip)
 
@@ -222,7 +224,7 @@ Platform reads identically to other methods.
 
 ## 6. Inspection & Verification
 
-Verify before upload. Inspection catches structural problems validation misses.
+Post-package, verify before upload. Quick inspection catches structural problems validation alone misses.
 
 ### List Contents
 
@@ -269,7 +271,7 @@ head -5 /tmp/skill-test/my-skill/SKILL.md
 
 ## 7. Multi-Skill Kit Packaging
 
-Single kit for related skills: wrapper folder + skill files + entry-point `SKILL.md` defining load order.
+Distributing related skills as single kit (e.g., `prompteng` config kit): wrapper folder + all skill files + entry-point `SKILL.md` defining load order.
 
 ### Kit Structure
 
@@ -284,7 +286,7 @@ prompteng.skill/
 └── README.md
 ```
 
-Kit-level `SKILL.md` = manifest. Tells Claude which files to load + sequence:
+Kit-level `SKILL.md` = manifest, not a skill itself. Tells Claude which files to load + sequence:
 
 ```markdown
 ---
@@ -309,7 +311,7 @@ Parse + enforce [RULES] and [ACTIONS]. Skip [HUMAN ACTIONS].
 
 ### Packaging a Kit
 
-§5 methods apply. Same zip as single skill:
+§5 methods apply. Kit folder zipped same as single skill:
 
 ```bash
 cd /path/to/parent
@@ -320,7 +322,7 @@ zip -r prompteng-kit.skill prompteng.skill/ \
     -x "prompteng.skill/.DS_Store"
 ```
 
-Kits rarely have `evals/`. If kit contains eval data for release, use `*/evals/*` or `--final`.
+Kits typically lack `evals/`; flag usually unnecessary. If kit contains eval data for release, use `*/evals/*` or `--final`.
 
 ---
 
@@ -359,27 +361,27 @@ Start
 ## 9. Troubleshooting
 
 **Archive contains flat files instead of folder.**
-Cause: zipped folder contents, not folder itself.
+Cause: zipped folder *contents*, not folder itself. Archive must have folder name as top-level entry.
 Fix: `cd` into folder's *parent* before `zip -r`.
 
 **Archive unexpectedly large.**
-Cause: `node_modules/`, `.git/`, heavyweight dirs included.
-Fix: add `-x` exclusion flags or clean folder pre-compress.
+Cause: `node_modules/`, `.git/`, other heavyweight dirs included.
+Fix: add `-x` exclusion flags, or clean folder pre-compress.
 
 **Platform rejects upload with no clear error.**
-Cause: frontmatter validation failure.
-Fix: run `scripts/validate_skill.py` locally.
+Cause: frontmatter validation failure. Platform may not surface specific error.
+Fix: run `scripts/validate_skill.py` locally for specific error.
 
 **SKILL.md not found after extraction.**
-Cause: wrong case (`skill.md`, `Skill.md`) or nested too deep.
-Fix: exactly `SKILL.md` at skill folder root.
+Cause: filename differs (`skill.md`, `Skill.md`) or nested one level too deep.
+Fix: filename is case-sensitive — exactly `SKILL.md`. Must sit at skill folder root.
 
 **evals/ in FINAL release archive.**
-Cause: packaged without `--final`.
-Fix: repackage with `--final` or `*/evals/*` glob. Verify with §6 FINAL check.
+Cause: packaged without `--final`, or Method A without `*/evals/*` glob.
+Fix: repackage with `--final` or deep exclusion glob. Verify with §6 FINAL check.
 
 **Uploads successfully but Claude doesn't see it.**
-Upload / project config issue. See `README.md`.
+Upload / project config issue, not packaging. See `README.md`.
 
 ---
 
@@ -403,4 +405,4 @@ Upload / project config issue. See `README.md`.
 
 ---
 
-*packageng-SKILL.md v2.0.1*
+*packageng-SKILL.md v2.0.0*
