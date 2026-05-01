@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Delay
+        run: sleep 30
+
       - name: Checkout
         uses: actions/checkout@v4
 
