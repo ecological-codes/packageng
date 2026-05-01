@@ -22,6 +22,7 @@ jobs:
           SKILL_NAME=$(basename "$GITHUB_WORKSPACE")
           cp -r "$GITHUB_WORKSPACE" "/tmp/${SKILL_NAME}"
           rm -rf "/tmp/${SKILL_NAME}/.github"
+          rm -f "$GITHUB_WORKSPACE/${SKILL_NAME}.skill"
           cd /tmp
           zip -r "$GITHUB_WORKSPACE/${SKILL_NAME}.skill" "${SKILL_NAME}/" \
             -x "${SKILL_NAME}/.git/*" \
