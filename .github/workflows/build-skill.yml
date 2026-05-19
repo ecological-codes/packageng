@@ -53,10 +53,14 @@ jobs:
       - name: Commit and push
         run: |
           SKILL_NAME=$(basename "$GITHUB_WORKSPACE")
+          VERSION=$(grep -m1 'version:' SKILL.md | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          DATETIME=$(date -u '+%Y-%m-%dT%H%M%SZ')
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add "${SKILL_NAME}.skill"
           git diff --cached --quiet \
             && echo "no change — skip commit" \
-            || git commit -m "bundle [skip ci]"
+            || git commit \
+                 --message "build: ${SKILL_NAME} v${VERSION} ${DATETIME} [skip ci]" \
+                 --trailer "Signed-off-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
           git push
